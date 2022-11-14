@@ -1,0 +1,34 @@
+#--------------------------------------------------------------
+# HelixCore docker-compose
+#--------------------------------------------------------------
+version: '3'
+
+#---NETWORKS---------------------------------------------------
+networks:
+  default:
+    external:
+      name: helixcore_app_net
+
+#---SERVICES---------------------------------------------------
+services:
+  p4proxy:
+    container_name: helix-proxy
+    image: helix-proxy
+    build:
+      context: ./p4p
+      dockerfile: Dockerfile
+    environment:
+      P4PORT: ssl:helix-p4d:1666
+      PORT: ssl:1777
+      P4USER: super
+      P4PASSWD: Passw0rd
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - seccomp:unconfined
+    privileged: true
+    tty: true
+    command:
+      - /sbin/init
+    ports:
+      - "1777:1777"
