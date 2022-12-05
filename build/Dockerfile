@@ -23,7 +23,7 @@ RUN apt-get update && apt-get -y install helix-p4d helix-proxy \
 
 # See: https://hub.docker.com/_/centos/
 RUN echo "$USER:$PASSWD" | chpasswd \
-    && echo "$USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+    && echo "$USER ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 
 # Add external files
