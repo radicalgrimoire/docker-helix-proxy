@@ -38,8 +38,7 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime \
     && sudo -E -u perforce p4d -Gc \
     && sudo -E -u perforce p4d -Gf \
     && echo ' ' > ${P4PLOGFILE} \
-    && chown perforce:perforce ${P4PLOGFILE} \
-    && sudo service cron start
+    && chown perforce:perforce ${P4PLOGFILE}
 
 
 EXPOSE 1777
