@@ -15,3 +15,4 @@ p4 trust -y -f
 popd
 
 sudo -E -u perforce p4p -d -S -p ${PORT} -t ${P4PORT} -r ${P4PCACHE} -L ${P4PLOGFILE} -v 3
+sudo service cron start
