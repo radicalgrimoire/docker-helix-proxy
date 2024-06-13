@@ -1,0 +1,75 @@
+name: publish
+
+on:
+  workflow_call:
+    inputs:
+      docker_files_name:
+        description: Dockerfile's name
+        required: true
+        type: string
+      version_substr:
+        description: Version substring
+        required: false
+        type: string
+
+env:
+  USER: ${{ secrets.USER }}
+  PASSWD: ${{ secrets.PASSWD }}
+  VERSION: ${{ vars.VERSION }}
+  P4PLOGDIR: ${{ vars.P4PLOGDIR }}
+  P4HOME: ${{ vars.P4HOME }}
+  IMAGE_NAME: ${{ vars.IMAGE_NAME }}
+
+jobs:
+
+  # Push image to GitHub Packages.
+  # See also https://docs.docker.com/docker-hub/builds/
+  # TAG_SUFFIX="nightly-$(date +'%Y%m%d')"
+  publish:
+    # Ensure test job passes before pushing image.
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build image
+        run: |
+          docker build \
+          -t $GITHUB_WORKFLOW \
+          --build-arg USER=$USER \
+          --build-arg PASSWD=$PASSWD \
+          --build-arg VERSION=$VERSION \
+          --build-arg P4PLOGDIR=$P4PLOGDIR \
+          --build-arg P4HOME=$P4HOME \
+          -f ./build/${{ inputs.docker_files_name }} ./build
+
+      - name: Log into registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Set current datetime as env variable
+        env:
+          TZ: 'Asia/Tokyo'
+        run: echo "CURRENT_DATETIME=$(date +'%Y%m%d')" >> $GITHUB_ENV
+
+      - name: Push image
+        run: |
+          IMAGE_ID=ghcr.io/${{ github.repository }}/$GITHUB_WORKFLOW
+
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+          # If this is a tagged release, also tag the built image with the same tag.
+          TAG_SUFFIX=""
+          if [ "${{ github.event_name }}" == "schedule" ]; then
+            TAG_SUFFIX="nightly"
+            docker tag $GITHUB_WORKFLOW $IMAGE_ID:$TAG_SUFFIX
+            docker push $IMAGE_ID:$TAG_SUFFIX
+          fi
+
+          # Tag image with version number.
+          docker tag $GITHUB_WORKFLOW $IMAGE_ID:$VERSION.$GITHUB_RUN_NUMBER
+          docker push $IMAGE_ID:$VERSION.$GITHUB_RUN_NUMBER
+
+          TAG_SUFFIX="latest"
+          docker tag $GITHUB_WORKFLOW $IMAGE_ID:$TAG_SUFFIX
+          docker push $IMAGE_ID:$TAG_SUFFIX

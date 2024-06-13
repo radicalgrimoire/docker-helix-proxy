@@ -1,0 +1,35 @@
+name: test
+
+on:
+  workflow_call:
+    inputs:
+      docker_files_name:
+        description: Dockerfile's name
+        required: true
+        type: string
+
+env:
+  USER: ${{ secrets.USER }}
+  PASSWD: ${{ secrets.PASSWD }}
+  VERSION: ${{ vars.VERSION }}
+  P4PLOGDIR: ${{ vars.P4PLOGDIR }}
+  P4HOME: ${{ vars.P4HOME }}
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run tests
+        run: |
+          docker build \
+          -t $GITHUB_WORKFLOW \
+          --build-arg USER=$USER \
+          --build-arg PASSWD=$PASSWD \
+          --build-arg VERSION=$VERSION \
+          --build-arg P4PLOGDIR=$P4PLOGDIR \
+          --build-arg P4HOME=$P4HOME \
+          -f ./build/${{ inputs.docker_files_name }} ./build
