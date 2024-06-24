@@ -3,6 +3,7 @@ LABEL maintainer="ueno.s <ueno.s@gamestudio.co.jp>"
 
 COPY files/run.sh /usr/local/bin/run.sh
 COPY files/p4p /etc/logrotate.d/p4p
+COPY files/p4p-master.conf /etc/perforce/p4dctl.conf.d/p4p-master.conf
 
 ARG USER
 ARG PASSWD
