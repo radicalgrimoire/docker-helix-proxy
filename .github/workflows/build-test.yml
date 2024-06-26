@@ -1,4 +1,4 @@
-name: helix-proxy
+name: build-test
 
 on:
   schedule:
