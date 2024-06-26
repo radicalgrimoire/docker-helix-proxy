@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sed -i -e "s/ssl:helixcore:1666/${P4PORT}/g" /etc/perforce/p4dctl.conf.d/p4p-master.conf
+sed -i -e "s/ssl:helix-p4d:1666/${P4PORT}/g" /etc/perforce/p4dctl.conf.d/p4p-master.conf
 
 p4 trust -y -f
 yes $P4PASSWD | p4 login
