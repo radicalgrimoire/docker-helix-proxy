@@ -11,21 +11,3 @@ Container image files are available in GithubPackage, so feel free to use them i
 docker-compose -f docker-compose.yml up -d
 ```
 
-## Go inside the container you built.
-
-```
-docker exec -it helix-proxy bash
-```
-
-## switch perforce user
-
-```
-su - perforce
-```
-
-## execute run.sh
-
-```
-run.sh
-```
-
