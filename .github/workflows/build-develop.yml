@@ -1,4 +1,4 @@
-name: build-develop
+name: helix-proxy
 on:
 
   workflow_dispatch:
