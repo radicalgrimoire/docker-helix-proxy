@@ -23,6 +23,6 @@ jobs:
       dockerfile: 'Dockerfile'
       image_name: helix-proxy
       version: ${{ vars.VERSION }}
-      p4logdir: ${{ vers.P4PLOGDIR }}
+      p4logdir: ${{ vars.P4PLOGDIR }}
       p4home: ${{ vars.P4HOME }}
     secrets: inherit
