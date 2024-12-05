@@ -5,6 +5,13 @@ Container image files are available in GithubPackage, so feel free to use them i
 
 # How to use
 
+## Edit docker-compose.yml
+
+```
+    environment:
+      P4PORT: ssl:p4d:1666   ← edit your perforce server addr
+```
+
 ## Built Container command
 
 ```
