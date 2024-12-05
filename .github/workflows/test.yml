@@ -3,17 +3,21 @@ name: test
 on:
   workflow_call:
     inputs:
-      docker_files_name:
-        description: Dockerfile's name
+      dockerfile:
         required: true
         type: string
-
-env:
-  USER: ${{ secrets.USER }}
-  PASSWD: ${{ secrets.PASSWD }}
-  VERSION: ${{ vars.VERSION }}
-  P4PLOGDIR: ${{ vars.P4PLOGDIR }}
-  P4HOME: ${{ vars.P4HOME }}
+      image_name:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
+      p4logdir:
+        required: true
+        type: string
+      p4home:
+        required: true
+        type: string
 
 jobs:
 
@@ -27,9 +31,9 @@ jobs:
         run: |
           docker build \
           -t $GITHUB_WORKFLOW \
-          --build-arg USER=$USER \
-          --build-arg PASSWD=$PASSWD \
-          --build-arg VERSION=$VERSION \
-          --build-arg P4PLOGDIR=$P4PLOGDIR \
-          --build-arg P4HOME=$P4HOME \
-          -f ./build/${{ inputs.docker_files_name }} ./build
+          --build-arg USER=${{ secrets.USER }} \
+          --build-arg PASSWD=${{ secrets.PASSWD }} \
+          --build-arg VERSION=${{ inputs.version }} \
+          --build-arg P4PLOGDIR=${{ inputs.p4logdir }} \
+          --build-arg P4HOME=${{ inputs.p4home }} \
+          -f ./build/${{ inputs.dockerfile }} ./build

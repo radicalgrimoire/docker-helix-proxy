@@ -20,5 +20,9 @@ jobs:
     uses: ./.github/workflows/test.yml
     with:
       # The name of the image to test.
-      docker_files_name: 'Dockerfile'
+      dockerfile: 'Dockerfile'
+      image_name: helix-proxy
+      version: ${{ vars.VERSION }}
+      p4logdir: ${{ vers.P4PLOGDIR }}
+      p4home: ${{ vars.P4HOME }}
     secrets: inherit
