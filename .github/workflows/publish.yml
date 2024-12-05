@@ -34,7 +34,7 @@ jobs:
       - name: Build image
         run: |
           docker build \
-          -t $GITHUB_WORKFLOW \
+          -t ${{ inputs.image_name }} \
           --build-arg USER=${{ secrets.USER }} \
           --build-arg PASSWD=${{ secrets.PASSWD }} \
           --build-arg VERSION=${{ inputs.version }} \
