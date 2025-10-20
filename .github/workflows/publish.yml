@@ -46,7 +46,7 @@ jobs:
           P4P_V_OUTPUT=$(docker run --rm ${{ secrets.IMAGE_NAME }} p4p -V)
           echo "[DEBUG] p4p -V output:"
           echo "$P4P_V_OUTPUT"
-          VERSION_RAW=$(echo "$P4P_V_OUTPUT" | grep 'Rev.' | awk '{print $3}' | cut -d'/' -f1 || echo "unknown")
+          VERSION_RAW=$(echo "$P4P_V_OUTPUT" | grep 'Rev.' | awk -F'/' '{print $3}' || echo "unknown")
           VERSION=$(echo "$VERSION_RAW" | grep -oE "20[0-9]{2}\.[0-9]+" | head -1 || echo "unknown")
           echo "[DEBUG] VERSION_RAW=$VERSION_RAW"
           echo "[DEBUG] VERSION=$VERSION"
