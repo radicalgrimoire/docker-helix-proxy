@@ -2,10 +2,20 @@ name: build-develop
 
 on:
   schedule:
-    - cron: '0 0 1 * *'
+    # JST 朝9時 = UTC 0時（JST = UTC + 9時間）
+    - cron: '0 0 * * *'
   
   workflow_dispatch:
- 
+    inputs:
+      dockerfile:
+        description: 'Dockerfile to use for building'
+        required: false
+        default: 'Dockerfile'
+        type: choice
+        options:
+          - 'Dockerfile'
+          - 'Dockerfile.v2'
+
 jobs:
   # Run tests.
   # See also https://docs.docker.com/docker-hub/builds/automated-testing/
@@ -13,25 +23,45 @@ jobs:
   test:
     uses: ./.github/workflows/test.yml
     with:
-      # The name of the image to test.
-      dockerfile: 'Dockerfile'
-      image_name: 'helix-proxy'
-      version: ${{ vars.VERSION }}
-      p4logdir: ${{ vars.P4PLOGDIR }}
-      p4home: ${{ vars.P4HOME }}
+      # スケジュール実行時はDockerfile、手動実行時は選択されたファイルを使用
+      docker_files_name: ${{ inputs.dockerfile || 'Dockerfile' }}
     secrets: inherit
+
+  # Check if today is the designated day to push (Monday) or if manually triggered.
+  # If not, skip the push job.
+  check-day:
+    runs-on: ubuntu-latest
+    needs: test
+    outputs:
+      should-push: ${{ steps.check.outputs.should-push }}
+    steps:
+      - name: Check if should push
+        id: check
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "should-push=true" >> $GITHUB_OUTPUT
+            echo "Manual execution - pushing enabled"
+          elif [ "${{ github.event_name }}" = "schedule" ]; then
+            # 月曜日 = 1 (0=日曜, 1=月曜, 2=火曜...)
+            DAY_OF_WEEK=$(date +%u)
+            if [ "$DAY_OF_WEEK" = "1" ]; then
+              echo "should-push=true" >> $GITHUB_OUTPUT
+              echo "Monday schedule - pushing enabled"
+            else
+              echo "should-push=false" >> $GITHUB_OUTPUT
+              echo "Not Monday - pushing disabled"
+            fi
+          else
+            echo "should-push=true" >> $GITHUB_OUTPUT
+            echo "Other event - pushing enabled"
+          fi
+
 
   # Push image to GitHub Packages.
   # See also https://docs.docker.com/docker-hub/builds/
   # TAG_SUFFIX="nightly-$(date +'%Y%m%d')"
   push:
     uses: ./.github/workflows/publish.yml
-    needs: test
-    with:
-      # The name of the image to push.
-      dockerfile: 'Dockerfile'
-      image_name: 'helix-proxy'
-      version: ${{ vars.VERSION }}
-      p4logdir: ${{ vars.P4PLOGDIR }}
-      p4home: ${{ vars.P4HOME }}
+    needs: [test, check-day]
+    if: needs.check-day.outputs.should-push == 'true'
     secrets: inherit

@@ -1,21 +1,18 @@
 name: test
 
+
+env:
+  
+  P4HOME: /opt/perforce/servers
+  P4PCACHE: /opt/perforce/servers/p4p-master
+  P4PLOGDIR: /opt/perforce/servers/log
+  P4PLOGFILE: /opt/perforce/servers/log/p4p.log
+  P4SSLDIR: /opt/perforce/servers/ssl
+
 on:
   workflow_call:
     inputs:
-      dockerfile:
-        required: true
-        type: string
-      image_name:
-        required: true
-        type: string
-      version:
-        required: true
-        type: string
-      p4logdir:
-        required: true
-        type: string
-      p4home:
+      docker_files_name:
         required: true
         type: string
 
@@ -30,10 +27,26 @@ jobs:
       - name: Run tests
         run: |
           docker build \
-          -t $GITHUB_WORKFLOW \
+          -t ${{ secrets.IMAGE_NAME }} \
           --build-arg USER=${{ secrets.USER }} \
           --build-arg PASSWD=${{ secrets.PASSWD }} \
-          --build-arg VERSION=${{ inputs.version }} \
-          --build-arg P4PLOGDIR=${{ inputs.p4logdir }} \
-          --build-arg P4HOME=${{ inputs.p4home }} \
-          -f ./build/${{ inputs.dockerfile }} ./build
+          --build-arg P4PLOGDIR=${{ env.P4PLOGDIR }} \
+          --build-arg P4HOME=${{ env.P4HOME }} \
+          -f ./build/${{ inputs.docker_files_name }} ./build
+
+      - name: Run tests
+        run: |
+            # テスト処理をここに追加
+            echo "Testing image: ${{ secrets.IMAGE_NAME }}"
+            docker run --rm ${{ secrets.IMAGE_NAME }} p4p -V || true
+
+      - name: Save Docker image as artifact
+        run: |
+            docker save ${{ secrets.IMAGE_NAME }} > ${{ secrets.IMAGE_NAME }}.tar
+            
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image-${{ secrets.IMAGE_NAME }}
+          path: ${{ secrets.IMAGE_NAME }}.tar
+          retention-days: 1
