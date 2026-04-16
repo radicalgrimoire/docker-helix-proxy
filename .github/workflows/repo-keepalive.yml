@@ -1,0 +1,39 @@
+name: repo-keepalive
+
+on:
+  schedule:
+    # 毎月1日 10:00 JST = UTC 01:00
+    - cron: '0 1 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: repo-keepalive
+  cancel-in-progress: false
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Update keepalive file
+        shell: bash
+        run: |
+          cat > .github/keepalive.txt << EOF
+          This file is updated automatically by GitHub Actions to keep repository activity alive.
+          Last updated (UTC): $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          Run ID: ${{ github.run_id }}
+          EOF
+
+      - name: Commit and push
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/keepalive.txt
+          git commit -m "chore: keep repository active [skip ci]" || exit 0
+          git push
