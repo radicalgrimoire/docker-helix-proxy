@@ -13,7 +13,8 @@ on:
   workflow_call:
     inputs:
       docker_files_name:
-        required: true
+        required: false
+        default: 'Dockerfile'
         type: string
 
 jobs:
