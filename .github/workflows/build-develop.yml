@@ -2,9 +2,9 @@ name: build-develop
 
 on:
   schedule:
-    # JST 朝9時 = UTC 0時（JST = UTC + 9時間）
-    - cron: '0 0 * * *'
-  
+    # JST 月曜朝9時 = UTC 0時（JST = UTC + 9時間）
+    - cron: '0 0 * * 1'
+
   workflow_dispatch: {}
 
 jobs:
