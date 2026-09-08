@@ -15,7 +15,8 @@ ENV LANG="ja_JP.UTF-8" \
     LC_ALL="ja_JP.UTF-8" \
     P4PCACHE=${P4HOME}/p4p-master \
     P4SSLDIR=${P4HOME}/ssl \
-    P4PLOGFILE=${P4PLOGDIR}/p4p.log
+    P4PLOGFILE=${P4PLOGDIR}/p4p.log \
+    P4P_CACHE_PURGE_DAYS=30
 
 RUN ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime \
     && apt-get update \
